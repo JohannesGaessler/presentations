@@ -27,4 +27,4 @@ plt.bar(x=bar_x, height=f(bar_x), width=0.05, color=(1.0, 0.0, 0.0, 0.5), label=
 plt.legend(loc="upper left")
 plt.xlabel("x")
 plt.ylabel("y")
-plt.savefig("pi_midpoint.png")
+plt.savefig("pi_riemann.png")
