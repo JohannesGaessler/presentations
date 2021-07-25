@@ -35,5 +35,4 @@ print(f"Estimate: {pi_empirical:.6f}")
 print(f"Empirical uncertainty: {4 * np.sqrt(np.var(rand_y_weighted) / SAMPLE_SIZE) / pi_empirical * 100:.4f}%")
 print(f"Expected uncertainty: {4 * np.sqrt(Varfg / SAMPLE_SIZE) / np.pi * 100:.4f}%")
 
-
 plt.show()

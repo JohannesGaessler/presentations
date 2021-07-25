@@ -1,5 +1,6 @@
 import numpy as np
-from monte_carlo.pi_vegas import vegas
+vegas_module = __import__("04_pi_vegas")
+vegas = vegas_module.vegas
 
 results = []
 
@@ -8,6 +9,6 @@ for _ in range(1000):
 results = np.array(results)
 
 mean_result = np.mean(results)
-print(mean_result)
-print(np.std(results)/mean_result)
+print(f"Estimate: {mean_result}")
+print(f"Empirical relative uncertainty: {100 * np.std(results)/mean_result}%")
 

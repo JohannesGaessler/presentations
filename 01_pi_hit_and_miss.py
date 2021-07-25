@@ -42,4 +42,4 @@ print(f"Empirical relative uncertainty: {4 * np.sqrt(p_empirical*q_empirical/SAM
 print(f"Expected relative uncertainty: {4 * np.sqrt(p*q/SAMPLE_SIZE) / np.pi * 100:.4f}%")
 
 plt.savefig("pi_hit_and_miss.png")
-#plt.show()
+plt.show()

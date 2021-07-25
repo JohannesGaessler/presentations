@@ -86,7 +86,6 @@ def vegas(iterations=3, samples_per_iteration=333, num_bins=20, K=1000, alpha=1.
 
 
 if __name__ == "__main__":
-    print(vegas(make_plots=True))
-
+    print(f"Estimate: {vegas(make_plots=True)} s")
 
     #plt.show()
