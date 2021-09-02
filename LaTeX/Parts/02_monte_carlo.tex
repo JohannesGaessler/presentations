@@ -1,0 +1,131 @@
+\section{Monte Carlo Methods}
+Monte Carlo (MC) methods in the context of this paper generally work by randomly sampling $N$ values from a distribution
+and averaging the results
+(unless otherwise noted values are sampled evenly from the interval $[0,1)$).
+From a theoretical standpoint this is equivalent to an integration because for $N \rightarrow \infty$ the result of
+MC and numerical integration via quadrature are the same (ignoring floating point error).
+The only meaningful difference between MC and a quadrature is that MC samples randomly from the distribution
+while a quadrature samples evenly.
+The methods introduced in this section are taken from \cite{james}.
+
+In one dimension a quadrature is clearly superior to MC.
+The error of MC is $O(N^{-\frac{1}{2}})$ while the error of even a simple quadrature like the trapezoid rule is $O(N^{-2})$.
+However, the error of MC notably does \textit{not} depend on the dimensionality $d$ of the problem.
+Quadratures on the other hand need a number of points that increases exponentially with $d$ to achieve the same precision;
+If $N$ is constant the precision instead decreases by a factor of $N^\frac{1}{d}$.
+\begin{table}
+	\caption{Comparison of MC and different quadratures for $N$ points in $d$ dimensions.}
+	\centering
+	\begin{tabular}{cc}
+		Method & Precision\\
+		Monte Carlo & $O(N^{-\frac{1}{2}})$\\
+		Trapezoid rule & $O(N^{-\frac{2}{d}})$\\
+		Simpson rule & $O(N^{-\frac{4}{d}})$\\
+		Gauss rule ($m$th order) & $O(N^{-\frac{2m-1}{d}})$\\
+	\end{tabular}
+	\label{tab:mc_vs_quad}
+\end{table}
+Table \ref{tab:mc_vs_quad} compares the precision of some quadratures to MC for multi-dimensional problems.
+While more sophisticated quadrature rules are more precise for $d \rightarrow \infty$ all quadratures will be less precise than MC.
+Typically problems have a high dimensionality when they have many coupled degrees of freedom,
+e.g. particle physics event generators, simulation of galaxies, or weather forecasting.
+\subsection{Hit-And-Miss Monte Carlo}
+A very basic MC technique is to randomly sample points $\bf p$ and to simply count the points fulfilling some criterion
+$f : t_\mathbf{p} \rightarrow \mathbf{bool}$.
+This is called \textit{hit-and-miss MC}.
+Because each point has the same likelihood of being accepted the number of accepted points will follow a binomial distribution
+with probabilities $p$ and $q = 1 - p$.
+The standard deviation of hit-and-miss MC can then be estimated as $s = \sqrt{\frac{pq}{N}}$.
+
+As an example, let us consider the estimation of $\pi$ by sampling points in the $xy$ plane.
+Points with $x^2 + (y - 1)^2 < 1$ are accepted as being inside the unit circle around $(0, 1)$.
+The unit circle has an area of $\pi$ and one fourth of it lies inside the sampled area.
+With the number of accepted points $N_\mathrm{Acc}$ we can thus calculate $\pi$ and the corresponding standard deviation $s_\pi$ as:
+\begin{equation}
+	\pi = 4 \frac{N_\mathrm{Acc}}{N}, \quad s_\pi = 4 \frac{pq}{N}.
+\end{equation}
+\begin{figure*}
+	\centering
+	\includegraphics[width=\linewidth]{pi_hit_and_miss.png}
+	\caption{
+		Visualization of hit-and-miss MC.
+		Randomly sampled points are accepted if they are inside the circle around the upper left corner.
+	}
+	\label{fig:pi_hit_and_miss}
+\end{figure*}
+A graphical representation of this example is shown in Figure \ref{fig:pi_hit_and_miss}.
+For $N = 1000$ hit-and-miss MC yields a precision of $s_\pi = 1.7\%$.
+\subsection{Crude Monte Carlo}
+If we can formulate our problem as an integration we can improve upon hit-and-miss MC.
+The idea is to randomly sample values $x_i$ from the area to be integrated
+and to average the results of the function $f : t_x \rightarrow \mathbf{float}$.
+The integral $I$ can then be estimated as:
+\begin{equation}
+	I = \frac{1}{N} \sum_{i=1}^N f(x_i).
+\end{equation}
+The uncertainty $s_I$ of the result depends on the function variance $V[f(x)]$:
+\begin{equation}
+	s_I(N) = \sqrt{\frac{V[f(x)]}{N}}, \quad V[f(x)] = E \left[ (f(x) - E[f(x)])^2 \right].
+\end{equation}
+If we again consider our example of calculating $\pi$ we find that we can rearrange our condition as:
+\begin{equation}
+	y = f(x) = 1 - \sqrt{1 - x^2}.
+\end{equation}
+With $\pi = 4 (1 - I), \: s_\pi = 4 s_I$ we then find that crude MC has a precision of $s_\pi = 0.9\%$ for $N = 1000$.
+Compared to hit-and-miss MC the uncertainty is roughly cut in half.
+\subsection{Importance Sampling}
+Because the function variance depends on the deviations from the expectation $E[f(x)]$
+the result of crude MC will converge faster for flat functions.
+A trick to reduce the function variance is to use what is known as \textit{importance sampling}:
+instead of sampling evenly from the interval to be integrated values are
+sampled with an uneven probability density function (PDF) $g(x)$.
+In order to compensate for the uneven sampling the sampled function values are then scaled with a factor of $\frac{1}{g(x)}$.
+The effective function variance then becomes $ V \left[ \frac{f(x)}{g(x)} \right] $.
+To minimize the function variance $g(x) \approx f(x)$ should be chosen.
+
+Importance sampling can be applied to our example for crude MC by choosing $g(x) = \frac{1}{3} x^2$
+(see Figure \ref{fig:pi_variance_reduction}).
+\begin{figure*}
+	\centering
+	\includegraphics[width=\linewidth]{pi_variance_reduction.png}
+	\caption{
+		Visualization of crude MC with variance reduction.
+		The ratio of $f(x)$ and $g(x)$ is much flatter than the individual functions.
+		Samples concentrate towards high $x$ values where $g(x)$ is high.
+	}
+	\label{fig:pi_variance_reduction}
+\end{figure*}
+With the same number of points $N = 1000$ this drastically reduces the uncertainty of our result to $s_\pi = 0.1\%$
+- an almost tenfold improvement in precision.
+\subsection{VEGAS Algorithm}
+While importance sampling is a powerful technique it can be very difficult to find a suitable PDF $g(x)$,
+particularly for problems with high dimensionality.
+The VEGAS algorithm implements importance sampling without a known suitable PDF.
+Instead it iteratively adapts a step function to the function to be integrated.
+This step function is defined by a number of bin edges:
+\begin{equation}
+	0=x_1<x_2 < ... < x_{M+1}=1, \quad \Delta x_i = x_{i+1} - x_{i},
+\end{equation}
+where each bin is given the same probability content $\frac{1}{M}$.
+The PDF derived from these bins is thus:
+\begin{equation}
+	g(x) = \frac{1}{M \Delta x_i}.
+\end{equation}
+In order to adapt $g(x)$ to $f(x)$ the bin edges $x_i$ are now iteratively adapted.
+Initially all bins have the same size so $g(x)$ is flat.
+After drawing some samples the bin edges $x_i$ are then moved in such a way that the contribution
+of each bin to the integral becomes roughly equal:
+regions with a large contribution to the integral receive a high density of bins and samples
+while regions with a small contribution to the integral receive a low density of bins and samples.
+The sampling and resizing of bins is repeated iteratively until the algorithm terminates.
+A graphical representation of the VEGAS algorithm is shown in Figure \ref{fig:pi_vegas}.
+\begin{figure*}
+	\centering
+	\includegraphics[width=\linewidth]{pi_vegas.png}
+	\caption{
+		Visualization of the VEGAS algorithm with 3 iterations.
+		The PDF $g(x)$ is initially flat.
+		In the second and third iterations the shape of $g(x)$ is much closer shape of $f(x)$.
+	}
+	\label{fig:pi_vegas}
+\end{figure*}

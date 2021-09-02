@@ -1,0 +1,12 @@
+\section*{Conclusion}
+\addcontentsline{toc}{section}{Conclusion}
+In this paper we introduced the techniques hit-and-miss MC and crude MC.
+We showed how crude MC can be improved with importance sampling and how this process can be automated with the VEGAS algorithm.
+
+We gave a breakdown of the architecture of (modern) GPUs and how this corresponds to their thread model
+and the frameworks used to program them.
+
+We illustrated the programming patterns map, reduce, and filter, and how they can be efficiently parallelized using an SIMT architecture.
+
+Finally, we performed a simple benchmark of MC calculation and found that GPUs outperformed CPUs for large sample sizes
+but introduced significant latency due to memory transfers.

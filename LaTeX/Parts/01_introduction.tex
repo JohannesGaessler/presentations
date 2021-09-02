@@ -1,0 +1,12 @@
+\section*{Introduction}
+\addcontentsline{toc}{section}{Introduction}
+Monte Carlo (MC) methods are an important tool for multi-dimensional integration
+and they find application in many fields, including particle physics.
+However, as the computations associated with them can be very expensive parallelization is essential.
+The most straightforward option is to simply run them on several CPU cores in parallel.
+Another option is to use hardware accelerators such as GPUs to speed up the calculation.
+
+This paper introduces a few fundamental MC techniques and algorithms,
+explains the hardware and thread model of GPUs,
+lists a few programming patterns can be used for efficient parallelization,
+and finally shows a simple benchmark of MC when run on either a CPU or GPU.

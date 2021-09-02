@@ -1,0 +1,92 @@
+\section{Simple Benchmark}
+To better illustrate the benefits of GPUs we did a few simple benchmarks:
+we timed the MC calculation of $\pi$ on a GPU using the Tensorflow (v2.5.0-2) package and compared it
+to an equivalent implementation using the NumPy (v1.20.3-1) package.
+All benchmarks were performed on a Linux platform using a Ryzen 3700X CPU and an NVIDIA GTX 1070 GPU.
+The CPU and GPU are roughly equal in terms of price and release date.
+\subsection{Hit-And-Miss MC}
+The calculation of $\pi$ using hit-and-miss MC can be implemented with the following Python code:
+\begin{lstlisting}
+@tf.function
+def mc_tf(sample_size):
+    rand_xy = tf.random.uniform(
+	(sample_size, 2))
+
+    # Map:
+    in_circle = tf.square(rand_xy[:, 0]) \
+	+ tf.square(rand_xy[:, 1]) < 1.0
+
+    # Reduce:
+    mc_estimate = tf.math.count_nonzero(
+	in_circle) / sample_size
+
+    return 4 * mc_estimate
+\end{lstlisting}
+Notably the entire calculation can be expressed as a combination of map and reduce operations,
+implying that it can be efficiently parallelized on GPUs.
+\begin{figure*}
+	\centering
+	\includegraphics[width=\linewidth]{pi_hit_and_miss_benchmark.png}
+	\caption{
+		Benchmark of hit-and-miss MC.
+		Runtime with NumPy is proportional to sample size.
+		Runtime with Tensorflow is constant for $N <= 10^7$.
+		Runtime with Tensorflow is proportional to sample size for $N >= 10^9$
+		(assuming Tensorflow is already initialized).
+	}
+	\label{fig:pi_hit_and_miss_benchmark}
+\end{figure*}
+Figure \ref{fig:pi_hit_and_miss_benchmark} shows the result of the benchmark.
+The runtime with NumPy (single CPU core) is proportional to sample size, indicating negligible overhead.
+The runtime with Tensorflow (GPU) is flat for small sample sizes and proportional to sample size for large sample sizes,
+indicating significant overhead.
+For small sample sizes NumPy is much faster than Tensorflow, for large sample sizes Tensorflow is much faster than NumPy.
+
+A large part of the GPU overhead is due to the initialization of the Tensorflow library which is several gigabytes in size.
+However, some overhead still remains when this is accounted for.
+The reason for this overhead is the memory management described in section \ref{sec:programming}.
+Compared to computation memory accesses are very slow.
+Memory transfers between system memory and GPU memory are even slower.
+To execute the above code on a GPU the generated kernel needs to first be transferred to GPU memory.
+After executing code the result needs to be transferred back to system memory.
+For small sample sizes the runtime is entirely dominated by the memory transfers,
+resulting in a runtime that is essentially constant.
+For large sample sizes the time needed for memory transfers becomes negligible resulting in a
+runtime that is proportional to sample size.
+\subsection{Crude MC}
+The calculation of $\pi$ can be implemented with the following Python code:
+\begin{lstlisting}
+@tf.function
+def mc_tf(sample_size):
+    rand_x = tf.random.uniform(
+	(sample_size,))
+
+    # Map:
+    function_values = 1.0 - tf.math.sqrt(
+	1.0 - tf.math.square(rand_x))
+
+    # Reduce:
+    mc_estimate = tf.reduce_mean(
+	function_values)
+
+    return 4 * mc_estimate
+\end{lstlisting}
+Again, the entire calculation can be expressed as a combination of map and reduce operations.
+\begin{figure*}
+	\includegraphics[width=\linewidth]{pi_crude_benchmark.png}
+	\caption{
+		Benchmark of crude MC.
+		Runtime with NumPy is proportional to sample size.
+		Runtime with Tensorflow (GPU) is constant for $N <= 10^7$.
+		Runtime with Tensorflow (CPU and GPU) is proportional to sample size for $N >= 10^9$
+		(assuming Tensorflow is already initialized).
+	}
+	\label{fig:pi_crude_benchmark}
+\end{figure*}
+Figure \ref{fig:pi_crude_benchmark} shows the result of the benchmark.
+The results for NumPy and Tensorflow (GPU) are essentially the same as for the hit-and-miss implementation.
+Additionally to Tensorflow (GPU) we also benchmarked Tensorflow (CPU) to investigate the runtime
+of a multithreaded CPU implementation.
+Just like with Tensorflow (GPU) there is significant overhead that becomes negligible for large sample sizes.
+The overhead is due to the cost associated with thread creation.
+At least in this benchmark Tensorflow (GPU) was always faster than Tensorflow (CPU), particularly for large sample sizes.
