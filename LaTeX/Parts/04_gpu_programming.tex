@@ -2,7 +2,7 @@
 \label{sec:programming}
 CUDA\cite{cuda} and OpenCL\cite{opencl}, two of the most widely used GPU computing frameworks function very similarly from the perspective of a programmer:
 they both extend the C programming language\cite{c} with some functionality to run code on GPUs.
-Because they are based on C these frameworks feature manual memory management but with a twist:
+Because they are based on C these frameworks feature manual memory management, but with a twist:
 since discrete GPUs come with their own memory it's necessary to manually move data between
 GPU and system memory with a special function (see figure \ref{memory-transfer}).
 \begin{figure*}
@@ -67,13 +67,13 @@ An example is shown in figure \ref{fig:map}.
 	}
 	\label{fig:map}
 \end{figure*}
-If $t_x$ and $t_y$ have the same size map can be performed in-place, requiring only $O(M)$ extra memory.
+If $t_x$ and $t_y$ have the same size, map can be performed in-place, requiring only $O(M)$ extra memory.
 If $x$ needs to be re-used or if $t_x$ and $t_y$ have different sizes a new array needs to be allocated for $y$.
 Under the assumption that $f$ takes a constant amount of time to compute map is embarrassingly parallel.
 \subsection{Reduce}
 \label{reduce}
 The \textit{reduce} pattern condenses all values of $x$ into a single value $y$.
-In order for this pattern to work $y$ must have the same data type as $x_i$ and
+In order for this pattern to work $y$ must have the same data type as the individual array elements $x_n$ and
 there must be an associative operator $\oplus: (t_x, t_x) \rightarrow t_x$ that carries out the reduction.
 A simple way to implement the reduce pattern is to again divide $x$ into segments and assign each segment to a different SP.
 Then each segment is reduced with $\oplus$ to a single value $y_n$.
@@ -93,7 +93,7 @@ An example is shown in figure \ref{fig:reduce}.
 	\label{fig:reduce}
 \end{figure*}
 
-The implementation described above is embarrassingly parallel if $N >> M$.
+The implementation described above is embarrassingly parallel if $N \gg M$.
 In this case the work of reducing the individual segments into $y_n$ is dominant
 and the SPs will only spend a small amount of time idling at the end.
 The described implementation would also only require $O(M)$ extra memory and have a runtime of $O(N)$.
@@ -104,16 +104,16 @@ The partial sums are then iteratively added up to the total sum of the array.
 
 In regards to sums there is an important caveat though:
 most operations on floating point numbers, particularly additions, are \textbf{not} associative.
-Because floating point numbers only have a limited precision their operations are subject to rounding errors.
+Because floating point numbers only have limited precision their operations are subject to rounding errors.
 As such, applying the parallel reduce pattern to an array of floating point numbers will usually yield a slightly different result
 compared to a sequential execution.
 The techniques for minimizing the floating point error are the same for sequential and parallel execution though,
-and they are as such beyond the scope of this document.
+and they are beyond the scope of this document.
 \subsection{Filter}
 The \textit{filter} pattern is - as the name implies - used to filter an array based on some criterion:
-elements that fulfill the criterion are kept while elements that don't are discarded.
-This can be achieved by defining a function $f: t_x \rightarrow \textbf{bool}$ and keeping only those elements $x_i$
-where $f(x_i)$ is evaluated to \textit{true}.
+elements that fulfill the criterion are kept while elements that do not are discarded.
+This can be achieved by defining a function $f: t_x \rightarrow \textbf{bool}$ and keeping only those elements $x_n$
+where $f(x_n)$ is evaluated to \textit{true}.
 As with map the filter pattern for a single element $x_n$ can be evaluated independently from all other elements.
 As such, the same simple strategy of separating $x$ into segments and working on each segment in parallel can be used.
 However, because the array produced by the filter pattern is of a different size
@@ -131,6 +131,6 @@ An example is shown in figure \ref{fig:filter}.
 	\label{fig:filter}
 \end{figure*}
 
-The implementation described above is embarrassingly parallel if $N >> M$
+The implementation described above is embarrassingly parallel if $N \gg M$
 since in this case the time needed for filtering the segments is dominant.
 Due to having to create a new array the described implementation is $O(N)$ both in terms of extra memory and runtime.

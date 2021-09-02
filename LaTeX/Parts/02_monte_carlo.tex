@@ -11,10 +11,13 @@ The methods introduced in this section are taken from \cite{james}.
 In one dimension a quadrature is clearly superior to MC.
 The error of MC is $O(N^{-\frac{1}{2}})$ while the error of even a simple quadrature like the trapezoid rule is $O(N^{-2})$.
 However, the error of MC notably does \textit{not} depend on the dimensionality $d$ of the problem.
-Quadratures on the other hand need a number of points that increases exponentially with $d$ to achieve the same precision;
+Quadratures on the other hand need a number of points that increases exponentially with $d$ to achieve the same precision.
 If $N$ is constant the precision instead decreases by a factor of $N^\frac{1}{d}$.
 \begin{table}
-	\caption{Comparison of MC and different quadratures for $N$ points in $d$ dimensions.}
+	\caption{
+		Comparison of the precision of numerical integration over a $d$-dimensional volume
+		with a fixed number of points $N$ when using MC or a quadrature rule.
+	}
 	\centering
 	\begin{tabular}{cc}
 		Method & Precision\\
@@ -77,8 +80,8 @@ Compared to hit-and-miss MC the uncertainty is roughly cut in half.
 Because the function variance depends on the deviations from the expectation $E[f(x)]$
 the result of crude MC will converge faster for flat functions.
 A trick to reduce the function variance is to use what is known as \textit{importance sampling}:
-instead of sampling evenly from the interval to be integrated values are
-sampled with an uneven probability density function (PDF) $g(x)$.
+instead of sampling evenly from the interval to be integrated,
+values are sampled with an uneven probability density function (PDF) $g(x)$.
 In order to compensate for the uneven sampling the sampled function values are then scaled with a factor of $\frac{1}{g(x)}$.
 The effective function variance then becomes $ V \left[ \frac{f(x)}{g(x)} \right] $.
 To minimize the function variance $g(x) \approx f(x)$ should be chosen.

@@ -22,7 +22,7 @@ with a single or multiple data streams:
 While there are some tasks that are suitable for MIMD computers but not for SIMD computers (like compiling code)
 the narrower range of tasks of an SIMD computer allows for hardware optimizations in its design.
 As a simple example, consider that fetching and decoding instructions is not free;
-some amount of logic needs to go into those steps which means that they take up precious die area.
+some amount of logic needs to go into these steps which means that they take up precious die area.
 If the same instructions are applied to multiple data streams
 the amount of die area going towards fetching and decoding instructions decreases
 while the amount of die area doing towards actually executing the instructions increases, thus increasing the throughput of data.
@@ -41,10 +41,9 @@ Of course, since branching instructions result in idle threads it should be kept
 	\includegraphics[width=\linewidth]{gpu-vs-cpu.png}
 	\caption{
 		Graphical representation of the analogy between hardware and thread model on CPUs and GPUs.
-		Each CPU core can work on one thread at a time so threads are managed individually.
+		Each CPU core can work on one thread at a time, so threads are managed individually.
 		Each SM can work on multiple threads at once so threads are managed as warps.
 		Warps are in turn grouped together as blocks.
-		%Some warps can have fewer threads than an SM has SPs (last and second to last blocks from the top).
 	}
 	\label{gpu-vs-cpu}
 \end{figure*}
@@ -54,21 +53,21 @@ A CPU has one or more cores that execute threads one at a time, so threads are b
 A GPU has many so-called \textit{streaming multiprocessors} (SM) that in turn consist of many \textit{streaming processors} (SP).
 The SPs on an SM synchronously run threads with the same instructions that are combined to a so-called \textit{warp}.
 Each SM manages multiple warps which are in turn combined to \textit{blocks};
-these are the units that are being assigned to a SM.
+these are the units that are being assigned to an SM.
 
 Each warp in a block executes the same code.
 When a block is assigned to SM it begins to execute one of the warps in the block until no more work can be done on the warp
 (e.g. because the warp needs to fetch data from memory).
 The SM then performs a \textit{context switch} to another warp in the same block and continues to do work.
-Ideally, the reason why one particular warp can't do work will be resolved while the SM works on the other warps
+Ideally, the reason why one particular warp cannot do work will be resolved while the SM works on the other warps
 (for example because the data arrives from memory).
 In this case no time at all was spent waiting from the perspective of a single warp.
 This practice is called \textit{latency hiding}.
 
-It is important to note that unlike CPU cores SPs don't have dedicated registers.
+It is important to note that unlike CPU cores, SPs do not have dedicated registers.
 Instead they share the registers of the SM and these registers are \textbf{not} flushed upon a context switch.
 This means that context switches between warps can be performed very quickly.
-However, it also means that registers are shared between warps, reducing the amount of available registers per warp.
+However, it also means that registers are shared between warps, reducing the number of available registers per warp.
 Large warps can result in the eviction of registers used by other warps to memory, inducing latency on a context switch.
 
 Due to the differences in their architectures multi-threading on a GPU
@@ -84,6 +83,6 @@ The difference in thread management described above reflects the difference in d
 CPUs are optimized for the execution of code that frequently branches (in terms of conditional statements or loops).
 They have a large number of registers and large amounts of cache per CPU core to reduce the latency induced by memory accesses.
 GPUs on the other hand are optimized for computational bandwidth.
-They have a much larger amount of comparatively slower SPs that are designed to run code with limited branching.
+They have a much larger number of comparatively slower SPs that are designed to run code with limited branching.
 Because SPs have access to fewer registers and less cache than CPU cores GPUs are also more suited for code that
 accesses data only once rather than many times.

@@ -1,5 +1,5 @@
 \section{Simple Benchmark}
-To better illustrate the benefits of GPUs we did a few simple benchmarks:
+To better illustrate the benefits of GPUs we performed a few simple benchmarks:
 we timed the MC calculation of $\pi$ on a GPU using the Tensorflow (v2.5.0-2) package and compared it
 to an equivalent implementation using the NumPy (v1.20.3-1) package.
 All benchmarks were performed on a Linux platform using a Ryzen 3700X CPU and an NVIDIA GTX 1070 GPU.
@@ -30,8 +30,8 @@ implying that it can be efficiently parallelized on GPUs.
 	\caption{
 		Benchmark of hit-and-miss MC.
 		Runtime with NumPy is proportional to sample size.
-		Runtime with Tensorflow is constant for $N <= 10^7$.
-		Runtime with Tensorflow is proportional to sample size for $N >= 10^9$
+		Runtime with Tensorflow is constant for $N \le 10^7$.
+		Runtime with Tensorflow is proportional to sample size for $N \ge 10^9$
 		(assuming Tensorflow is already initialized).
 	}
 	\label{fig:pi_hit_and_miss_benchmark}
@@ -51,10 +51,10 @@ To execute the above code on a GPU the generated kernel needs to first be transf
 After executing code the result needs to be transferred back to system memory.
 For small sample sizes the runtime is entirely dominated by the memory transfers,
 resulting in a runtime that is essentially constant.
-For large sample sizes the time needed for memory transfers becomes negligible resulting in a
-runtime that is proportional to sample size.
+For large sample sizes the time needed for memory transfers becomes negligible,
+resulting in a runtime that is proportional to sample size.
 \subsection{Crude MC}
-The calculation of $\pi$ can be implemented with the following Python code:
+The calculation of $\pi$ using crude MC can be implemented with the following Python code:
 \begin{lstlisting}
 @tf.function
 def mc_tf(sample_size):
