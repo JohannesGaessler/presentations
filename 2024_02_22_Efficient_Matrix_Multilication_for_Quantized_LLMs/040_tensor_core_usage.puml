@@ -1,0 +1,14 @@
+@startuml
+skinparam DefaultFontSize 48
+skinparam dpi 240
+
+start
+:Initialize accumulator;
+repeat
+    :Load input values;
+    :Matrix multiplication;
+repeat while (More input values?) is (Yes)
+->No;
+#FF7777:Write back results;
+stop
+@enduml

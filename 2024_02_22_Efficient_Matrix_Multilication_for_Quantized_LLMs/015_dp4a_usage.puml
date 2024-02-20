@@ -1,0 +1,18 @@
+@startuml
+skinparam DefaultFontSize 48
+skinparam dpi 240
+
+start
+:Initialize float accumulator;
+repeat
+    :Initialize int32 accumulator;
+    repeat
+        :Load int8 input values;
+        #77FF77:Dot product with int8 intrinsics;
+    repeat while (More values in block?) is (Yes)
+    ->No;
+    :Scale int accumulator with block scales;
+    :Increment float accumulator with scaled int;
+repeat while (More input blocks?) is (Yes)
+stop
+@enduml

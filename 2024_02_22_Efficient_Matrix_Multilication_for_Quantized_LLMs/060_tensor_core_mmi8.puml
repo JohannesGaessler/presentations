@@ -1,0 +1,17 @@
+@startuml
+skinparam DefaultFontSize 48
+skinparam dpi 240
+
+start
+:Initialize int32 accumulator a;
+repeat
+    :Initialize int32 accumulator b;
+    :Load int8 input values;
+    :int8 matrix multiplication;
+    #7777FF:Increment a with scaled b;
+repeat while (More input values?) is (Yes)
+->No;
+#FF7777:Write back results of a;
+:Scale results of a with block scales;
+stop
+@enduml
